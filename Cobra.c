@@ -7,10 +7,15 @@
 
 #define altura 30
 #define largura 60
-#define pixelciano "\033[46m \033[0m"
-#define pixelvermelho "\033[41m \033[0m"
-#define pixelazul "\033[44m \033[0m"
-#define pixelverde "\033[42m \033[0m"
+#define VerdeEscuro     "\x1b[48;2;9;175;30m  "
+#define VerdeClaro      "\x1b[48;2;59;247;73m  "
+#define Vermelho        "\x1b[48;2;255;0;0m  "
+#define AzulEscuro      "\x1b[48;2;0;0;200m  "
+#define AzulmenosEscuro "\x1b[48;2;0;120;255m  "
+#define linhaNova "\x1b[0m\n"
+#define setCursorIncio "\033[H"
+#define esconderCursor "\033[?25l"
+#define mostrarCursor "\033[?25h"
 int score, cobratamanho, cobracabecax, cobracabecay, frutaposx, frutaposy, cobraraboy[100], cobrarabox[100];
 int mensagemderrota;
 bool s;
@@ -21,6 +26,10 @@ void printarTela();
 
 int main()
 {
+    HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD modo = 0;
+    GetConsoleMode(handle, &modo);
+    SetConsoleMode(handle, modo | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
     srand(time(NULL));
     iniciarFrutaCobra();
     while (s)
@@ -42,6 +51,8 @@ void iniciarFrutaCobra()
     cobracabecax = largura / 2;
     frutaposx = rand() % (largura - 2) + 1;
     frutaposy = rand() % (altura - 2) + 1;
+    printf(esconderCursor);
+    
 }
 void coisas() {
      if (kbhit())
@@ -107,7 +118,7 @@ void coisas() {
 }
 void printarTela()
 {
-    system("cls");
+    printf(setCursorIncio);
     for (int y = 0; y < altura; y++)
     {
         for (int x = 0; x < largura; x++)
@@ -115,31 +126,31 @@ void printarTela()
 
             if (y == 0 || y == altura - 1 || x == 0 || x == largura - 1)
             {
-                printf(" ");
+                printf(VerdeEscuro);
             }
             else if (y == cobracabecay && x == cobracabecax)
             {
-                printf(pixelazul);
+                printf(AzulEscuro);
             }
             else if (y == frutaposy && x == frutaposx)
             {
-                printf(pixelvermelho);
+                printf(Vermelho);
             }
             else {
                 bool printouRabo = false;
                 for (int i = 0; i < cobratamanho; i++){
                     if (y == cobraraboy[i] && x == cobrarabox[i]){
-                        printf(pixelciano);
+                        printf(AzulmenosEscuro);
                         printouRabo = true;
                         break; 
                     }
                 }
                 if (!printouRabo) {
-                    printf(pixelverde);
+                    printf(VerdeClaro);
             }
             }
         }
-        printf("\n");
+        printf(linhaNova);
     }
     printf("\nScore : %d\n", (cobratamanho*100));
     if(!s){
@@ -148,6 +159,6 @@ void printarTela()
         } else if (mensagemderrota == 2){
             printf("Bateu na parede, morreu");
         }
-
+        printf(mostrarCursor);
     }
 }
